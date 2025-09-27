@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Confirmed - Punctual</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 50px 20px;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        .icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            font-size: 24px;
+            margin: 0 0 15px 0;
+            font-weight: 600;
+        }
+        .success {
+            font-size: 16px;
+            margin-bottom: 25px;
+            opacity: 0.9;
+        }
+        .loading {
+            font-size: 14px;
+            margin-bottom: 20px;
+            opacity: 0.8;
+        }
+        .fallback {
+            font-size: 12px;
+            opacity: 0.7;
+            line-height: 1.4;
+        }
+        .countdown {
+            font-weight: bold;
+            color: #FFD700;
+        }
+        .manual-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .manual-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">✅</div>
+        <h1>Email Confirmed!</h1>
+        <p class="success">Your email has been successfully verified for Punctual.</p>
+        <p class="loading">Opening app in <span class="countdown" id="countdown">3</span> seconds...</p>
+        <a href="punctual://auth/confirmed" class="manual-link" id="manualLink" style="display: none;">
+            Open Punctual App
+        </a>
+        <p class="fallback">
+            If the app doesn't open automatically, tap the button above or close this page and open Punctual manually.
+        </p>
+    </div>
+
+    <script>
+        let countdownValue = 3;
+        const countdownElement = document.getElementById('countdown');
+        const manualLink = document.getElementById('manualLink');
+
+        // Countdown timer
+        const countdownInterval = setInterval(() => {
+            countdownValue--;
+            countdownElement.textContent = countdownValue;
+
+            if (countdownValue <= 0) {
+                clearInterval(countdownInterval);
+                // Try to open the app
+                window.location.href = 'punctual://auth/confirmed';
+
+                // Show manual link after 2 seconds in case automatic redirect didn't work
+                setTimeout(() => {
+                    manualLink.style.display = 'inline-block';
+                    document.querySelector('.loading').innerHTML = 'App not opening? Try the button below:';
+                }, 2000);
+            }
+        }, 1000);
+
+        // Handle visibility change (when user returns to page)
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                // User returned to page, app might not have opened
+                setTimeout(() => {
+                    manualLink.style.display = 'inline-block';
+                    document.querySelector('.loading').innerHTML = 'Still here? Try the button below:';
+                }, 1000);
+            }
+        });
+
+        // Also try immediate redirect for devices that don't need the countdown
+        setTimeout(() => {
+            if (navigator.userAgent.includes('iPhone') || navigator.userAgent.includes('iPad')) {
+                // iOS devices sometimes work better with immediate redirect
+                window.location.href = 'punctual://auth/confirmed';
+            }
+        }, 100);
+    </script>
+</body>
+</html>
